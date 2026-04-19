@@ -1,28 +1,41 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../api";
 import CampaignForm from "../components/CampaignForm";
 
 const Dashboard = () => {
   const [campaigns, setCampaigns] = useState([]);
 
   const fetchCampaigns = async () => {
-    const res = await axios.get("http://localhost:5000/api/campaign/user/123");
-    setCampaigns(res.data);
+    try {
+      const res = await API.get("/campaign/user");
+      setCampaigns(res.data);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to fetch campaigns");
+    }
   };
 
   useEffect(() => {
-    fetchCampaigns();
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      window.location.href = "/";
+    } else {
+      fetchCampaigns();
+    }
   }, []);
 
   return (
     <div>
       <h2>Dashboard</h2>
-      <CampaignForm />
+      <CampaignForm refresh={fetchCampaigns} />
 
       <h3>Your Campaigns</h3>
       <ul>
         {campaigns.map((c) => (
-          <li key={c._id}>{c.triggerWord} → {c.message}</li>
+          <li key={c._id}>
+            {c.triggerWord} → {c.message}
+          </li>
         ))}
       </ul>
     </div>
