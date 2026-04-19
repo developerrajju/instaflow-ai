@@ -7,10 +7,10 @@ const cors = require("cors");
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 
-// ✅ Use ENV instead of local Mongo
+// DB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
   .catch((err) => console.error(err));
@@ -18,10 +18,11 @@ mongoose.connect(process.env.MONGO_URI)
 // Routes
 app.get("/", (req, res) => res.send("API Running"));
 
-// Port from ENV (important for deployment)
+// ✅ MOVE THESE HERE
+app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/campaign", require("./routes/campaignRoutes"));
+
+// Port
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-app.use("/api/auth", require("./routes/authRoutes"));
-app.use("/api/campaign", require("./routes/campaignRoutes"));
-console.log("Auth routes loaded");
