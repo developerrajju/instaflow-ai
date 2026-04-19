@@ -1,12 +1,24 @@
+const express = require("express");
+const router = express.Router();
+const auth = require("../middleware/authMiddleware");
 const Campaign = require("../models/Campaign");
 
-exports.createCampaign = async (req, res) => {
-  const campaign = new Campaign(req.body);
-  await campaign.save();
-  res.json(campaign);
-};
+// CREATE campaign (protected)
+router.post("/create", auth, async (req, res) => {
+const campaign = new Campaign({
+userId: req.user,
+triggerWord: req.body.triggerWord,
+message: req.body.message,
+});
 
-exports.getCampaigns = async (req, res) => {
-  const campaigns = await Campaign.find({ userId: req.params.userId });
-  res.json(campaigns);
-};
+await campaign.save();
+res.json(campaign);
+});
+
+// GET campaigns (protected)
+router.get("/user", auth, async (req, res) => {
+const campaigns = await Campaign.find({ userId: req.user });
+res.json(campaigns);
+});
+
+module.exports = router;
