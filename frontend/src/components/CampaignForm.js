@@ -1,23 +1,40 @@
 import React, { useState } from "react";
-import axios from "axios";
+import API from "../api";
 
-const CampaignForm = () => {
+const CampaignForm = ({ refresh }) => {
   const [word, setWord] = useState("");
   const [message, setMessage] = useState("");
 
   const handleSubmit = async () => {
-    await axios.post("http://localhost:5000/api/campaign/create", {
-      userId: "123",
-      triggerWord: word,
-      message,
-    });
-    alert("Campaign Created");
+    try {
+      await API.post("/campaign/create", {
+        triggerWord: word,
+        message,
+      });
+
+      setWord("");
+      setMessage("");
+      alert("Campaign Created");
+
+      if (refresh) refresh(); // reload campaigns
+    } catch (err) {
+      console.error(err);
+      alert("Error creating campaign");
+    }
   };
 
   return (
     <div>
-      <input placeholder="Trigger" onChange={(e) => setWord(e.target.value)} />
-      <input placeholder="Message" onChange={(e) => setMessage(e.target.value)} />
+      <input
+        placeholder="Trigger"
+        value={word}
+        onChange={(e) => setWord(e.target.value)}
+      />
+      <input
+        placeholder="Message"
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+      />
       <button onClick={handleSubmit}>Create</button>
     </div>
   );
